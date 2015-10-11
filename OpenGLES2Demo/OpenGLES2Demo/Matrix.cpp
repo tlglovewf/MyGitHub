@@ -26,7 +26,7 @@ void Matrix::scale(float sx, float sy, float sz)
 	this->m[1][2] *= sy;
 	this->m[1][3] *= sy;
 
-	this->m[2][0] *= sz;
+	this->m[2][0] *= sz;										   
 	this->m[2][1] *= sz;
 	this->m[2][2] *= sz;
 	this->m[2][3] *= sz;
