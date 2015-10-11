@@ -1,0 +1,14 @@
+precision mediump float;	 
+varying vec2 v_texCrood;	 
+uniform int drawtex;
+uniform sampler2D texSampler;
+uniform vec4 uColor;
+void main()				   
+{							 
+if(1 == drawtex){			 
+ gl_FragColor = uColor * texture2D(texSampler, v_texCrood);
+}							
+else{                       
+  gl_FragColor = uColor * texture2D(texSampler,  gl_PointCoord);
+}							 
+}							

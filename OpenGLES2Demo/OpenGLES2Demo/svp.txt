@@ -1,0 +1,10 @@
+attribute vec4 vPosition;  
+attribute vec2 texCrood;	
+uniform mat4 vWorldMatrix; 
+varying vec2 v_texCrood;
+void main()                
+{                          
+ 	gl_Position =  vPosition * vWorldMatrix ;  
+	gl_PointSize = 128.0;	
+	v_texCrood = texCrood;	
+}  

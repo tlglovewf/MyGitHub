@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGLES2Demo", "OpenGLES2Demo\OpenGLES2Demo.vcxproj", "{B41FA872-E3BA-4F6A-8242-F95BBA7A75B2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ES2Render", "ES2Render\ES2Render.vcxproj", "{905909C4-D135-422C-848D-FD5B233FB7D9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B41FA872-E3BA-4F6A-8242-F95BBA7A75B2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B41FA872-E3BA-4F6A-8242-F95BBA7A75B2}.Debug|Win32.Build.0 = Debug|Win32
+		{B41FA872-E3BA-4F6A-8242-F95BBA7A75B2}.Release|Win32.ActiveCfg = Release|Win32
+		{B41FA872-E3BA-4F6A-8242-F95BBA7A75B2}.Release|Win32.Build.0 = Release|Win32
+		{905909C4-D135-422C-848D-FD5B233FB7D9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{905909C4-D135-422C-848D-FD5B233FB7D9}.Debug|Win32.Build.0 = Debug|Win32
+		{905909C4-D135-422C-848D-FD5B233FB7D9}.Release|Win32.ActiveCfg = Release|Win32
+		{905909C4-D135-422C-848D-FD5B233FB7D9}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
