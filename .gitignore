@@ -1,0 +1,13 @@
+*.dll
+*.exp
+*.ilk
+*.lib
+*.exe
+*.pdb
+*.log
+*.tlog
+*.idb
+*.obj
+*.sdf
+*.obj
+*.idb
