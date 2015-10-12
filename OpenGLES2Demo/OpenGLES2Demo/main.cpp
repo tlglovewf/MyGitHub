@@ -386,15 +386,15 @@ GLuint CreateFontAltasTexture()
 
 	static int left = 0;
 	static int top = 0;
-	if (NULL == buffer)
-	{
-		printf(" create font atlas buffer error!");
-		return 0;
-	}
+	//if (NULL == buffer)
+	//{
+	//	printf(" create font atlas buffer error!");
+	//	return 0;
+	//}
 
 	glGenTextures(1, &picTex);
 	glBindTexture(GL_TEXTURE_2D, picTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, 0, GL_RGBA, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -418,7 +418,7 @@ int main(void)
 	if(0 == (userData.programObj = renderMgr.CreateShaderProgram( vShaderStr, fShaderStr)))
 		return 0;
 
-	userData.textureId = LoadTexture("test.tga");
+	userData.textureId = /*LoadTexture("test.tga");*/
 						 /*LoadTexture("dll.tga");*/
 						 /*LoadTexture("111.tga");*/
 						 /* LoadTexture("number.tga");
@@ -427,7 +427,7 @@ int main(void)
 						  LoadTexture("rockwall.tga");
 						  LoadTexture("number.tga");
 						  LoadTexture("rockwall.tga");*/
-						 /* CreateFontAltasTexture();*/
+						  CreateFontAltasTexture();
 	userData.textVLoc = glGetAttribLocation(userData.programObj, "texCrood");
 	userData.textSpLoc = glGetUniformLocation( userData.programObj, "texSampler" );
 	userData.clrLoc = glGetUniformLocation( userData.programObj, "uColor");

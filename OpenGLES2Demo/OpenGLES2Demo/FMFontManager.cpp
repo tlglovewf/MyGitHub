@@ -52,7 +52,7 @@ void FMFont::drawText(float x, float y, const wchar_t *text, GLuint ptLoc, GLuin
 
 void FMFont::initFontAtlasTexture(void)
 {
-	wchar_t initch[] = L"你好我是中国人";
+	wchar_t initch[] = L"hello";
 
 	const int ftLen =  wcslen(initch);
 	typedef unsigned char u8;
