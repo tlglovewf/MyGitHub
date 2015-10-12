@@ -5,7 +5,6 @@
 #include <freetype.h>
 #include <map>
 typedef unsigned int uint;
-#define TEXTSIZE 1024
 struct FMCharacter
 {
 public:
@@ -28,6 +27,8 @@ public:
 	FMCharacter* getCharactor(wchar_t ch);
 
 	void drawText(float x, float y, const wchar_t *text, unsigned int ptLoc, unsigned int texLoc);
+
+	void initFontAtlasTexture(void);
 private:
 	FT_Face			mFace;
 	int				mStartX;
@@ -64,7 +65,6 @@ private:
 	std::vector<FMFont*> mFonts;
 	int					 mCurIndex;
 	FT_Library mFontLib;
-
 	FMFontManager();
 };
 

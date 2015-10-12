@@ -5,8 +5,6 @@
 #include <set>
 using namespace std;
 typedef unsigned char uchar;
-#define IMAGEDEFAULTSIZE (DEAFULTSIZE * DEAFULTSIZE)
-#define RGBFORMAT 3
 struct ImageUnit
 {
 	float u;
@@ -36,7 +34,10 @@ public:
 
 	uchar* getIndexBuffer(int index);
 
+	static void setImageFormat(int formate);
+
 	static int s_MaxTextureSize;
+	static int s_IMAGEFORMATE;
 private:
 	vector< ImageUnit* > mImageUnits;
 	map< int , uchar* > mImgData;

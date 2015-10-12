@@ -3,6 +3,7 @@
 #include <ftglyph.h>
 #include <GLES2/gl2.h>
 #include <algorithm>
+#include "ImageAltas.h"
 FMFont::FMFont(FT_Library ftLib, const char* fontFile, int fontSize):
 mFontSize(fontSize),
 mFace(NULL),
@@ -13,21 +14,7 @@ mTexId(0)
 	assert(NULL != ftLib);
 
 	FT_Error error =  FT_New_Face(ftLib, fontFile,0, &mFace);
-	//FT_Select_Charmap(mFace, FT_ENCODING_UNICODE);
-	//FT_Set_Char_Size(mFace, fontSize << 6, fontSize << 6, 500, 500);
 	FT_Set_Pixel_Sizes(mFace, 0, fontSize);
-	assert(NULL != mFace);
-	glGenTextures(1, &mTexId);
-	glBindTexture(GL_TEXTURE_2D, mTexId);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, TEXTSIZE, TEXTSIZE, 0, GL_ALPHA, GL_UNSIGNED_BYTE, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, TEXTSIZE, TEXTSIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 }
 
 FMFont::~FMFont()
@@ -52,181 +39,121 @@ void setfour( GLuint &val )
 
 FMCharacter* FMFont::getCharactor(wchar_t ch)
 {
-	if ( 0 == mChars.count(ch))
-	{//字符不存在纹理上
-
-		mChars.insert(std::make_pair(ch, new FMCharacter));
-
-		if (mStartX + mFontSize > TEXTSIZE)
-		{//满一行，从新开始
-			mStartX = 0;
-			mStartY += mFontSize;
-		}
- 
-		FT_Error error = FT_Load_Glyph(mFace, FT_Get_Char_Index(mFace, ch), FT_LOAD_DEFAULT);
-		FT_Glyph glyph;
-		FT_Get_Glyph(mFace->glyph, &glyph);
-		FT_Glyph_To_Bitmap(&glyph, ft_render_mode_normal, 0, 1);
-		FT_BitmapGlyph bitmap_glyph = (FT_BitmapGlyph)glyph;
-		FT_Bitmap &bitmap = bitmap_glyph->bitmap;
-
-		//假如没有数据直接跳过
-		if (0 == bitmap.width || 0 == bitmap.rows)
-		{
-			mStartX += mFontSize / 2;
-
-			mChars[ch]->x0 = mStartX;
-			mChars[ch]->y0 = mStartY;
-			mChars[ch]->x1 = mStartX + bitmap.width;
-			mChars[ch]->y1 = mStartX + bitmap.rows;
-			mChars[ch]->offsetX = 0;
-			mChars[ch]->offsetY = 0;
-			
-		}
-		else
-		{
-			glBindTexture(GL_TEXTURE_2D, mTexId);
-			int error = glGetError();
-			mChars[ch]->x0 = mStartX;
-			mChars[ch]->y0 = mStartY;
-			mChars[ch]->x1 = mStartX + bitmap.width;
-			mChars[ch]->y1 = mStartX + bitmap.rows;
-			mChars[ch]->offsetX = bitmap_glyph->left;
-			mChars[ch]->offsetY = bitmap_glyph->top;
-			//memset(ch, 255,  );
-			GLuint txwidth = bitmap.width;
-			GLuint txheight = bitmap.rows;
-			setfour(txwidth);
-			setfour(txheight);
-			typedef unsigned char u8;
-			unsigned char *pt = bitmap.buffer;
-			txwidth > txheight ? txheight = txwidth : txwidth = txheight;
-			unsigned char *ch = new unsigned char[ txwidth * 4 * txheight ];
-			memset(ch, 0, txwidth * 4);
-			for (int i = 0; i < bitmap.rows; ++i)
-			{
-				unsigned char *rowp = ch;
-				for (int j = 0; j < bitmap.width; ++j)
-				{
-					if (*pt)
-					{
-						u8 tmp = *pt;
-						*pt = (u8)(sqrt((float)tmp / 256.0f) * 256.0f);
-
-						*rowp = *pt << 24;
-						*rowp |= 0xffffff;
-					}
-					else
-					{
-						*rowp = 0;
-					}
-					pt++;
-					rowp++;
-				}
-				ch += txwidth;
-			}
-
-			glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-			glTexSubImage2D(GL_TEXTURE_2D, 0, mStartX, mStartY, txwidth, txheight, 
-							GL_RGBA, GL_UNSIGNED_BYTE, ch);
-			mStartX += txwidth + 1;
-		}
-	}
-
-	return mChars[ch];
+	return NULL;
 }
 
 void FMFont::drawText(float x, float y, const wchar_t *text, GLuint ptLoc, GLuint texLoc)
 {
-	typedef float TextVerx[5];
-	TextVerx vert[TEXTSIZE] = { 0 };
-
-	float texWidth  = TEXTSIZE;
-	float texHeight = TEXTSIZE;
-	float xStart = x;
-	float yStart = y + 16;
-	float zStart = -1;
-	int index = 0;
-	unsigned nsize = wcslen(text);
-	float fHeight = 0;
-	int *pIdx = new int[nsize * 6];
-	for (int i = 0; i < nsize; ++i)
+	if (NULL != text)
 	{
-		FMCharacter *ch = getCharactor(text[i]);
 
-		int height = ch->y1 - ch->y0;
-		int width = ch->x1 - ch->x0;
-		float offset = height - ch->offsetY;
-		float offsetX = ch->offsetX;
-
-		/**
-		*   第一个点
-		*/
-		vert[index + 0][0] = xStart;
-		vert[index + 0][1] = yStart - height + offset;
-		vert[index + 0][2] = zStart;
-		vert[index + 0][3] = ch->x0 / texWidth;
-		vert[index + 0][4] = ch->y0 / texHeight;
-		/**
-		*   第二个点
-		*/
-		vert[index + 1][0] = xStart  + width;
-		vert[index + 1][1] = yStart - height + offset;
-		vert[index + 1][2] = zStart;
-		vert[index + 1][3] = ch->x1 / texWidth;
-		vert[index + 1][4] = ch->y0 / texHeight;
-
-		/**
-		*   第三个点
-		*/
-		vert[index + 2][0] = xStart + width;
-		vert[index + 2][1] = yStart + offset;
-		vert[index + 2][2] = zStart;
-		vert[index + 2][3] = ch->x1 / texWidth;
-		vert[index + 2][4] = ch->y1 / texHeight;
-
-
-		/**
-		*   第四个点
-		*/
-		vert[index + 3][0] = xStart;
-		vert[index + 3][1] = yStart + offset;
-		vert[index + 3][2] = zStart;
-		vert[index + 3][3] = ch->x0 / texWidth;
-		vert[index + 3][4] = ch->y1 / texHeight;
-
-		const int dt = 4 * i;
-		pIdx[i * 6 + 0] = 0 + dt;
-		pIdx[i * 6 + 1] = 1 + dt;
-		pIdx[i * 6 + 2] = 2 + dt;
-		pIdx[i * 6 + 3] = 0 + dt;
-		pIdx[i * 6 + 4] = 2 + dt;
-		pIdx[i * 6 + 5] = 3 + dt;
-
-		xStart += width + (ch->offsetX);
-		index += 4;
 	}
-
-	static GLfloat pttex[] = { -0.5f, 0.5f, 0.0f,  // Position 0
-							
-								-0.5f, -0.5f, 0.0f,  // Position 1
-
-								0.5f, -0.5f, 0.0f,  // Position 2
-
-								0.5f, 0.5f, 0.0f,  // Position 3
-							};
-	//GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(TextVerx), pttex);
-	//glVertexAttribPointer(texLoc, 2, GL_FLOAT, GL_FALSE,sizeof(TextVerx), &vert[3]);
-	//glEnableVertexAttribArray(0);
-	//glEnableVertexAttribArray(texLoc);
-
-	//glDrawElements(GL_TRIANGLES, 6 * nsize, GL_UNSIGNED_INT, pIdx);
-	//glDrawElements( GL_POINTS, 6, GL_UNSIGNED_SHORT, indices);
-	delete[] pIdx;
 }
 
+void FMFont::initFontAtlasTexture(void)
+{
+	wchar_t initch[] = L"你好我是中国人";
 
+	const int ftLen =  wcslen(initch);
+	typedef unsigned char u8;
+	CImageAltas::setImageFormat(4);
+	CImageAltas::getSingleton();
+	u8 *ftTexture = new u8[CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4];
+	memset(ftTexture, 0, CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4);
+	ImageUnit unit;
+	unit.width = 1024;
+	unit.height = 1024;
+	unit.data = ftTexture;
+	
+	for (int i = 0; i < ftLen; ++i)
+	{
+		int idx = FT_Get_Char_Index(mFace, initch[i]);
+
+		if (idx <= 0) continue;
+
+		int top;
+		int lft;
+		int ttw;
+		int tth;
+		int igw;
+		int igh;
+
+		int offset = 0;
+		
+		if (!FT_Load_Glyph(mFace, idx, FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP))
+		{
+			FT_GlyphSlot glyph = mFace->glyph;
+			FT_Bitmap bits;
+			if (glyph->format == ft_glyph_format_outline)
+			{
+				if (!FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL))
+				{
+					bits = glyph->bitmap;
+					u8 *pt = bits.buffer;
+					top = glyph->bitmap_top;
+					lft = glyph->bitmap_left;
+					igw = 1;
+					igh = 1;
+					ttw = bits.width;
+					tth = bits.rows;
+					while (1)
+					{
+						if (igw > ttw)
+							break;
+						else
+							igw <<= 1;
+					}
+					while (1)
+					{
+						if (igh > tth)
+							break;
+						else
+							igh <<= 1;
+					}
+
+					igw > igh ? igh = igw : igw = igh;
+
+					const int len = igw * igh ;
+					int *data = new int[ len ];
+					int *texp = data;
+					memset(data, 0, len);
+
+					for (int i = 0; i < bits.rows; ++i)
+					{
+						int *rowp = texp;
+						for (int j = 0; j < bits.width; ++j)
+						{
+							if (*pt)
+							{
+								u8 tmp = *pt;
+								*pt = (u8)(sqrt((float)tmp / 256.0f) * 256.0f);
+								*rowp = *pt;
+								*rowp != 0xffffff;
+							}
+							else
+							{
+								*rowp == 0;
+							}
+							pt++;
+							rowp++;
+						}
+						texp += igw;
+					}
+					int Ascender = mFace->size->metrics.ascender >> 6;
+					int DeAscender = mFace->size->metrics.descender >> 6;
+					int height2 = mFace->size->metrics.height >> 6;
+
+					int glyphTop = (int)(Ascender - ((Ascender - DeAscender) - mFontSize) / 2.0 - top);
+					//
+					memcpy(ftTexture + offset, data, len * 4);
+					offset += 4 * len;
+				}
+
+			}
+		}
+	}
+	CImageAltas::getSingleton().addImageUnit(&unit);
+}
 
 FMFontManager::FMFontManager() :mCurIndex(0)
 {
@@ -251,6 +178,7 @@ FMFont* FMFontManager::createFont(const char *fontFile, int fontSize)
 {
 	FMFont *font = new FMFont(mFontLib, fontFile, fontSize);
 	mFonts.push_back(font);
+	font->initFontAtlasTexture();
 	return font;
 }
 
@@ -289,12 +217,7 @@ void FMFontManager::drawText(float x, float y, const wchar_t *text, GLuint ptLoc
 
 void FMFontManager::beginDraw( GLuint texLoc)
 {
-	//glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_2D, mFonts[mCurIndex]->mTexId);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
 }
 
 void FMFontManager::endDraw(void)
@@ -304,8 +227,5 @@ void FMFontManager::endDraw(void)
 
 void FMFontManager::setData(void *data)
 {
-  uint id = 	mFonts[0]->mTexId;
-  glBindTexture(GL_TEXTURE_2D, id);
-
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 512, 512, GL_RGB, GL_UNSIGNED_BYTE, data);
 }
+
