@@ -191,7 +191,7 @@ GLuint LoadTexture( const char *fileName )
 	glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 
 	
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, type, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(unit.index));
+	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, type, GL_UNSIGNED_BYTE, FMFontManager::getSingleton().getData());
 
 	return picTex;
 }
@@ -256,7 +256,8 @@ void ES2STDCALL drawArrowLine( void *ctx )
 
 void ES2STDCALL draw(void *ctx )
 {
-	glEnable(GL_BLEND);
+	//glClearColor(255, 255, 255, 255);
+	//glEnable(GL_BLEND);
 	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	assert(NULL != ctx );
 	ES2Context *es2ctx = static_cast<ES2Context*>(ctx);
@@ -378,11 +379,12 @@ void ES2STDCALL keyboard(void *esCtx , unsigned char ch, int x, int y)
 
 GLuint CreateFontAltasTexture()
 {
+	
 	int width,
 		height;
-	char *buffer = NULL;
+	uchar *buffer = new uchar[ 1024 * 1024 * 4];
    
-	FMFontManager::getSingleton().createFont("DroidSansFallback.ttf", 18);
+	FMFontManager::getSingleton().createFont("C:/Windows/Fonts/STXINGKA.TTF", 80);
 
 	static int left = 0;
 	static int top = 0;
@@ -392,9 +394,12 @@ GLuint CreateFontAltasTexture()
 	//	return 0;
 	//}
 
+	//WinTGALoad("test.tga", &buffer, &width, &height);
+
 	glGenTextures(1, &picTex);
 	glBindTexture(GL_TEXTURE_2D, picTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, FMFontManager::getSingleton().getData());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 

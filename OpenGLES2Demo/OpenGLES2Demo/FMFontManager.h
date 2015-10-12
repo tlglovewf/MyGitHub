@@ -5,6 +5,7 @@
 #include <freetype.h>
 #include <map>
 typedef unsigned int uint;
+typedef unsigned char uchar;
 struct FMCharacter
 {
 public:
@@ -36,6 +37,7 @@ private:
 	int				mFontSize;
 	uint			mTexId;
 	CharMapTable	mChars;
+	uchar           *mData;
 	FMFont(FT_Library ftLib, const char* fontFile, int fontSize);
 	~FMFont();
 };
@@ -61,6 +63,8 @@ public:
 	void setData(void *data);
 
 	int getTexId(void){ return mFonts[0]->mTexId; }
+
+	uchar* getData(void){ return mFonts[0]->mData; }
 private:
 	std::vector<FMFont*> mFonts;
 	int					 mCurIndex;

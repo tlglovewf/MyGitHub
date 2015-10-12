@@ -52,22 +52,18 @@ void FMFont::drawText(float x, float y, const wchar_t *text, GLuint ptLoc, GLuin
 
 void FMFont::initFontAtlasTexture(void)
 {
-	wchar_t initch[] = L"hello";
+	wchar_t initch[] = L"世界你好么";
 
 	const int ftLen =  wcslen(initch);
 	typedef unsigned char u8;
 	CImageAltas::setImageFormat(4);
 	CImageAltas::getSingleton();
-	u8 *ftTexture = new u8[CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4];
-	memset(ftTexture, 0, CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4);
-	ImageUnit unit;
-	unit.width = 1024;
-	unit.height = 1024;
-	unit.data = ftTexture;
-	
-	for (int i = 0; i < ftLen; ++i)
+	mData = new u8[CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4];
+	memset(mData, 0, CImageAltas::s_MaxTextureSize * CImageAltas::s_MaxTextureSize * 4);
+	int offset = 0;
+	for (int iidx = 0; iidx < ftLen; ++iidx)
 	{
-		int idx = FT_Get_Char_Index(mFace, initch[i]);
+		int idx = FT_Get_Char_Index(mFace, initch[iidx]);
 
 		if (idx <= 0) continue;
 
@@ -78,7 +74,7 @@ void FMFont::initFontAtlasTexture(void)
 		int igw;
 		int igh;
 
-		int offset = 0;
+		
 		
 		if (!FT_Load_Glyph(mFace, idx, FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP))
 		{
@@ -89,6 +85,7 @@ void FMFont::initFontAtlasTexture(void)
 				if (!FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL))
 				{
 					bits = glyph->bitmap;
+					
 					u8 *pt = bits.buffer;
 					top = glyph->bitmap_top;
 					lft = glyph->bitmap_left;
@@ -96,48 +93,60 @@ void FMFont::initFontAtlasTexture(void)
 					igh = 1;
 					ttw = bits.width;
 					tth = bits.rows;
-					while (1)
-					{
-						if (igw > ttw)
-							break;
-						else
-							igw <<= 1;
-					}
-					while (1)
-					{
-						if (igh > tth)
-							break;
-						else
-							igh <<= 1;
-					}
-
+					while (igw < ttw) igw <<= 1;
+					while (igh < tth) igh <<= 1;
 					igw > igh ? igh = igw : igw = igh;
 
 					const int len = igw * igh ;
-					int *data = new int[ len ];
-					int *texp = data;
+					uchar *data = new uchar[len * 4];
 					memset(data, 0, len);
-
+					const int defaultWidthspace = 4 * CImageAltas::s_MaxTextureSize;
+					for(int j = 0; j < igh ; j++)
+					{
+						const int dt = j * defaultWidthspace + offset;
+						for(int i = 0; i < igw; ++i)
+						{
+							mData[i + dt + 0] = mData[i + dt + 1] = mData[i + dt + 2] = mData[i + dt + 3] = (i >= bits.width || j >= bits.rows) ? 0 : bits.buffer[i + bits.width * j];
+						}
+					}
+					offset += igw * 4;
+					delete [] data;
+#if 0
 					for (int i = 0; i < bits.rows; ++i)
 					{
-						int *rowp = texp;
+						uchar *rowp = texp;
 						for (int j = 0; j < bits.width; ++j)
 						{
-							if (*pt)
+						/*	if (*pt)
 							{
 								u8 tmp = *pt;
 								*pt = (u8)(sqrt((float)tmp / 256.0f) * 256.0f);
 								*rowp = *pt;
-								*rowp != 0xffffff;
+								*rowp <<= 24;
+								*rowp |= 0xffffff;
 							}
 							else
 							{
 								*rowp == 0;
 							}
 							pt++;
-							rowp++;
+							rowp++;*/
+							if (0 != *pt)
+							{
+								u8 tmp = *pt;
+								*pt = (u8)(sqrt((float)tmp / 256.0f) * 256.0f);
+								*rowp++ = 0xff;
+								*rowp++ = 0xff;
+								*rowp++ = 0xff;
+								*rowp++ = 0xff;
+							}
+							else
+							{
+								rowp += 4;
+							}
+							pt++;
 						}
-						texp += igw;
+						texp += igw * 4;
 					}
 					int Ascender = mFace->size->metrics.ascender >> 6;
 					int DeAscender = mFace->size->metrics.descender >> 6;
@@ -147,12 +156,14 @@ void FMFont::initFontAtlasTexture(void)
 					//
 					memcpy(ftTexture + offset, data, len * 4);
 					offset += 4 * len;
+#endif
+
+
 				}
 
 			}
 		}
 	}
-	CImageAltas::getSingleton().addImageUnit(&unit);
 }
 
 FMFontManager::FMFontManager() :mCurIndex(0)
