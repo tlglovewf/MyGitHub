@@ -37,7 +37,7 @@ private:
 	int				mFontSize;
 	uint			mTexId;
 	CharMapTable	mChars;
-	uchar           *mData;
+	uint            *mData;
 	FMFont(FT_Library ftLib, const char* fontFile, int fontSize);
 	~FMFont();
 };
@@ -64,7 +64,7 @@ public:
 
 	int getTexId(void){ return mFonts[0]->mTexId; }
 
-	uchar* getData(void){ return mFonts[0]->mData; }
+	uint* getData(void){ return mFonts[0]->mData; }
 private:
 	std::vector<FMFont*> mFonts;
 	int					 mCurIndex;

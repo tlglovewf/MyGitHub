@@ -384,21 +384,12 @@ GLuint CreateFontAltasTexture()
 		height;
 	uchar *buffer = new uchar[ 1024 * 1024 * 4];
    
-	FMFontManager::getSingleton().createFont("C:/Windows/Fonts/STXINGKA.TTF", 80);
+	FMFontManager::getSingleton().createFont("msyh.ttf", 14);
 
 	static int left = 0;
 	static int top = 0;
-	//if (NULL == buffer)
-	//{
-	//	printf(" create font atlas buffer error!");
-	//	return 0;
-	//}
-
-	//WinTGALoad("test.tga", &buffer, &width, &height);
-
 	glGenTextures(1, &picTex);
 	glBindTexture(GL_TEXTURE_2D, picTex);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, FMFontManager::getSingleton().getData());
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
