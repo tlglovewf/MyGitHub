@@ -55,6 +55,8 @@ void FMFont::initFontAtlasTexture(void)
 {
 	wchar_t initch[] = L"一二三四五七八九十"
 					   L"上下左右东南西北"
+					   L"赵钱孙李周五郑王"
+					   L"孔子孟子老子庄子孙子"
 					   L"abcdefghijklmnopq"
 					   L"rstuvwxyz"
 					   L"ABCDEFG";
@@ -80,8 +82,6 @@ void FMFont::initFontAtlasTexture(void)
 		int igw;
 		int igh;
 
-		
-		
 		if (!FT_Load_Glyph(mFace, idx, FT_LOAD_NO_HINTING | FT_LOAD_NO_BITMAP))
 		{
 			FT_GlyphSlot glyph = mFace->glyph;
@@ -110,6 +110,10 @@ void FMFont::initFontAtlasTexture(void)
 					while (igh < tth) igh <<= 1;
 					igw > igh ? igh = igw : igw = igh;
 					//igw = igh = 128;
+					if ( offsetY + igh >= 1024)
+					{
+						break;
+					}
 					if (offsetX + igw> 1024)
 					{
 						offsetX = 0;
@@ -127,7 +131,7 @@ void FMFont::initFontAtlasTexture(void)
 							{
 								*rowp = *pt;
 								*rowp <<= 24;
-								*rowp |= 0xffffff;
+								*rowp |= 0;// 0xffffff;
 							}
 							else
 							{
@@ -135,7 +139,7 @@ void FMFont::initFontAtlasTexture(void)
 							}
 							if (i == 0 || j == 0 || i == bits.rows - 1 || j == bits.width - 1)
 							{
-								*rowp = 0xffffffff;
+								*rowp = 0;// 0xffffffff;
 							}
 							pt++;
 							rowp++;

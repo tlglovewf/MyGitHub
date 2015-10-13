@@ -11,3 +11,5 @@
 *.obj
 *.idb
 *.lastbuildstate
+*.log
+OpenGLES2Demo/ES2Render/Debug/ES2Render.log

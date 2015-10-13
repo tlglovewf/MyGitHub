@@ -256,9 +256,9 @@ void ES2STDCALL drawArrowLine( void *ctx )
 
 void ES2STDCALL draw(void *ctx )
 {
-	//glClearColor(255, 255, 255, 255);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glClearColor(255, 255, 255, 255);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	assert(NULL != ctx );
 	ES2Context *es2ctx = static_cast<ES2Context*>(ctx);
 	UserData *pData = (UserData *)es2ctx->userData;
