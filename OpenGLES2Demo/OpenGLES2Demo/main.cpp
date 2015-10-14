@@ -60,7 +60,7 @@ typedef struct
 	BYTE green;
 	BYTE blue;
 }RGBFORMAT;
-int WinTGALoad( const char *fileName, char **buffer, int *width, int *height )
+int WinTGALoad( const char *fileName, uchar **buffer, int *width, int *height )
 {
 	FILE        *fp;
 	TGA_HEADER   Header;
@@ -94,7 +94,7 @@ int WinTGALoad( const char *fileName, char **buffer, int *width, int *height )
 
 			fread(Buffer24, sizeof(RGBFORMAT), (*width) * (*height), fp);
 
-			*buffer = (LPSTR)malloc(sizeof(RGBFORMAT) * (*width) * (*height));
+			*buffer = new uchar[sizeof(RGBFORMAT) * (*width) * (*height)];
 
 			for ( y = 0; y < *height; y++ )
 				for( x = 0; x < *width; x++ )
@@ -129,8 +129,7 @@ int WinTGALoad( const char *fileName, char **buffer, int *width, int *height )
 					y;
 				const int szFormat = sizeof(RGBAFORMAT);
 				fread(Buffer32, szFormat, (*width) * (*height), fp);
-
-				*buffer = (LPSTR)malloc(sizeof(RGBAFORMAT)* (*width) * (*height));
+				*buffer = new uchar[sizeof(RGBAFORMAT) * (*width) * (*height)];
 
 				for (y = 0; y < *height; y++)
 					for (x = 0; x < *width; x++)
@@ -146,7 +145,6 @@ int WinTGALoad( const char *fileName, char **buffer, int *width, int *height )
 						(*buffer)[(i * szFormat) + 3] = Buffer32[Index].alpha;
 						i++;
 					}
-
 				fclose(fp);
 				free(Buffer32);
 				return(TRUE);
@@ -158,41 +156,16 @@ int WinTGALoad( const char *fileName, char **buffer, int *width, int *height )
 GLuint picTex = 0;
 GLuint LoadTexture( const char *fileName )
 {
-	int width,
-		height;
-	char *buffer = NULL;
-	WinTGALoad( fileName, &buffer, &width, &height );
+	static ImageUnit unit;
+	WinTGALoad(fileName, &unit.data, &unit.width, &unit.height);
 	static int left = 0;
 	static int top = 0;
-	if ( NULL == buffer )
+	if (NULL == unit.data)
 	{
-		printf ( "Error loading (%s) image.\n", fileName );
+		printf("Error loading (%s) image.\n", fileName);
 		return 0;
 	}
-	static bool bol = false;
-	if (!bol)
-	{
-		glGenTextures(1, &picTex);
-	}
-	glBindTexture(GL_TEXTURE_2D, picTex);
-	ImageUnit unit;
-	unit.data = new uchar[CImageAltas::s_IMAGEFORMATE * width * height];
-	memcpy(unit.data, buffer, CImageAltas::s_IMAGEFORMATE * width * height);
-	unit.width = width;
-	unit.height = height;
 	CImageAltas::getSingleton().addImageUnit(&unit);
-	GLuint type = (CImageAltas::s_IMAGEFORMATE == 3) ? GL_RGB : GL_RGBA;
-	if (!bol)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, type, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, 0, type, GL_UNSIGNED_BYTE, NULL);
-		bol = !bol;
-	}
-	glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri ( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-	
-	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, type, GL_UNSIGNED_BYTE, FMFontManager::getSingleton().getData());
-
 	return picTex;
 }
 
@@ -256,7 +229,7 @@ void ES2STDCALL drawArrowLine( void *ctx )
 
 void ES2STDCALL draw(void *ctx )
 {
-	glClearColor(255, 255, 255, 255);
+	//glClearColor(255, 255, 255, 255);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	assert(NULL != ctx );
@@ -377,21 +350,44 @@ void ES2STDCALL keyboard(void *esCtx , unsigned char ch, int x, int y)
 	}
 }
 
-GLuint CreateFontAltasTexture()
+GLuint CreateFontAltasMap()
 {
 	FMFontManager::getSingleton().createFont("msyh.ttf", 26);
 
-	static int left = 0;
-	static int top = 0;
 	glGenTextures(1, &picTex);
 	glBindTexture(GL_TEXTURE_2D, picTex);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1024, 1024, 0, GL_RGBA, GL_UNSIGNED_BYTE, FMFontManager::getSingleton().getData());
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	return picTex;
 }
+GLuint CreateTextureAltasMap(void)
+{
+#if 1
+	LoadTexture("test.tga");
+	LoadTexture("dll.tga");
+	LoadTexture("111.tga");
+#else
+	LoadTexture("number.tga");
+	LoadTexture("rockwall.tga");
+	LoadTexture("number.tga");
+	LoadTexture("rockwall.tga");
+	LoadTexture("number.tga");
+	LoadTexture("rockwall.tga");
+#endif
+	
+	glGenTextures(1, &picTex);
+	glBindTexture(GL_TEXTURE_2D, picTex);
+	GLuint type = CImageAltas::s_IMAGEFORMATE == 4 ? GL_RGBA : GL_RGB;
+	glTexImage2D(GL_TEXTURE_2D, 0, type, CImageAltas::s_MaxTextureSize, CImageAltas::s_MaxTextureSize, 0, type, GL_UNSIGNED_BYTE, CImageAltas::getSingleton().getIndexBuffer(0));
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	return picTex;
+}
 int main(void)
 {
 	ES2Context es2Ctx;
@@ -409,16 +405,8 @@ int main(void)
 	if(0 == (userData.programObj = renderMgr.CreateShaderProgram( vShaderStr, fShaderStr)))
 		return 0;
 
-	userData.textureId = /*LoadTexture("test.tga");*/
-						 /*LoadTexture("dll.tga");*/
-						 /*LoadTexture("111.tga");*/
-						 /* LoadTexture("number.tga");
-						  LoadTexture("rockwall.tga");
-						  LoadTexture("number.tga");
-						  LoadTexture("rockwall.tga");
-						  LoadTexture("number.tga");
-						  LoadTexture("rockwall.tga");*/
-						  CreateFontAltasTexture();
+	userData.textureId = CreateTextureAltasMap();
+						 // CreateFontAltasMap();
 	userData.textVLoc = glGetAttribLocation(userData.programObj, "texCrood");
 	userData.textSpLoc = glGetUniformLocation( userData.programObj, "texSampler" );
 	userData.clrLoc = glGetUniformLocation( userData.programObj, "uColor");

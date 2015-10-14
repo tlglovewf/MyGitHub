@@ -14,7 +14,7 @@ struct ImageUnit
 	int   index;
 	uchar *data;
 	ImageUnit():data(NULL), u(0), v(0), index(-1){}
-	~ImageUnit(){ if (NULL != data){ delete data; data = NULL; } }
+	~ImageUnit(){ if (NULL != data){ delete [] data; data = NULL; } }
 };
 
 

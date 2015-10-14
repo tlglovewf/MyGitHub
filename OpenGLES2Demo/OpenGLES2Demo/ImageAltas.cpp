@@ -125,7 +125,7 @@ void CImageAltas::insertData(ImageUnit *unit)
 			pdata[offsetWidth + j + dtSpace + 2] = unit->data[j + utSpace + 2];
 			if (4 == s_IMAGEFORMATE)
 			{
-				pdata[j + dtSpace + 3] = unit->data[j + utSpace + 3];
+				pdata[offsetWidth + j + dtSpace + 3] = unit->data[j + utSpace + 3];
 			}
 		}
 	}
