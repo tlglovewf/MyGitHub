@@ -379,12 +379,7 @@ void ES2STDCALL keyboard(void *esCtx , unsigned char ch, int x, int y)
 
 GLuint CreateFontAltasTexture()
 {
-	
-	int width,
-		height;
-	uchar *buffer = new uchar[ 1024 * 1024 * 4];
-   
-	FMFontManager::getSingleton().createFont("msyh.ttf", 14);
+	FMFontManager::getSingleton().createFont("msyh.ttf", 26);
 
 	static int left = 0;
 	static int top = 0;

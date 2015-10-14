@@ -14,8 +14,8 @@ mTexId(0)
 	assert(NULL != ftLib);
 
 	FT_Error error =  FT_New_Face(ftLib, fontFile,0, &mFace);
-	//FT_Set_Pixel_Sizes(mFace, fontSize * 1.5, fontSize);
-	FT_Set_Char_Size(mFace, fontSize << 6, 0, 600, 600);
+	FT_Set_Pixel_Sizes(mFace, 0 , fontSize);
+	//FT_Set_Char_Size(mFace, fontSize << 6, 0, 400, 400);
 }
 
 FMFont::~FMFont()
@@ -56,7 +56,7 @@ void FMFont::initFontAtlasTexture(void)
 	wchar_t initch[] = L"一二三四五七八九十"
 					   L"上下左右东南西北"
 					   L"赵钱孙李周五郑王"
-					   L"孔子孟子老子庄子孙子"
+					  // L"孔子孟子老子庄子孙子"
 					   L"abcdefghijklmnopq"
 					   L"rstuvwxyz"
 					   L"ABCDEFG";
@@ -110,15 +110,11 @@ void FMFont::initFontAtlasTexture(void)
 					while (igh < tth) igh <<= 1;
 					igw > igh ? igh = igw : igw = igh;
 					//igw = igh = 128;
-					if ( offsetY + igh >= 1024)
+					if ( offsetY +  igh >= 1024)
 					{
 						break;
 					}
-					if (offsetX + igw> 1024)
-					{
-						offsetX = 0;
-						offsetY += igh;
-					}
+
 					int dt = (chary + offsetY )* CImageAltas::s_MaxTextureSize + offsetX + lft  ;
 					
 					unsigned int *texp = mData + dt;
@@ -131,7 +127,7 @@ void FMFont::initFontAtlasTexture(void)
 							{
 								*rowp = *pt;
 								*rowp <<= 24;
-								*rowp |= 0;// 0xffffff;
+								*rowp |= 0;// 0x0000ff;
 							}
 							else
 							{
@@ -139,7 +135,7 @@ void FMFont::initFontAtlasTexture(void)
 							}
 							if (i == 0 || j == 0 || i == bits.rows - 1 || j == bits.width - 1)
 							{
-								*rowp = 0;// 0xffffffff;
+							//	*rowp = 0xffffffff;
 							}
 							pt++;
 							rowp++;
@@ -147,6 +143,11 @@ void FMFont::initFontAtlasTexture(void)
 						texp += CImageAltas::s_MaxTextureSize;
 					}
 					offsetX += igw ;
+					if (offsetX + igw > 1024)
+					{
+						offsetX = 0;
+						offsetY += igh;
+					}
 				}
 
 			}
